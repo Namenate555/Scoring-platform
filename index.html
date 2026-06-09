@@ -1,1279 +1,2383 @@
 <!DOCTYPE html>
+
 <html lang="th">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>ระบบประเมินการนำเสนอ — Presentation in English for Microbiologist</title>
+
 <style>
+
   @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
+ 
+
   :root {
+
     --bg: #0f1117;
+
     --surface: #1a1d27;
+
     --surface2: #22263a;
+
     --border: #2e3348;
+
     --accent: #4ade80;
+
     --accent-dim: rgba(74,222,128,0.12);
+
     --accent2: #60a5fa;
+
     --accent2-dim: rgba(96,165,250,0.12);
+
     --accent3: #f59e0b;
+
     --accent3-dim: rgba(245,158,11,0.12);
+
     --text: #e8eaf6;
+
     --text-dim: #8892b0;
+
     --text-dimmer: #4a5580;
+
     --danger: #f87171;
+
     --success: #4ade80;
+
     --radius: 10px;
+
     --mono: 'IBM Plex Mono', monospace;
+
     --sans: 'Sarabun', sans-serif;
+
   }
+
+ 
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+ 
+
   body {
+
     background: var(--bg);
+
     color: var(--text);
+
     font-family: var(--sans);
+
     font-size: 15px;
+
     line-height: 1.6;
+
     min-height: 100vh;
+
   }
 
+ 
+
   /* ─── HEADER ─── */
+
   .header {
+
     background: var(--surface);
+
     border-bottom: 1px solid var(--border);
+
     padding: 16px 32px;
+
     display: flex;
+
     align-items: center;
+
     gap: 16px;
+
     position: sticky;
+
     top: 0;
+
     z-index: 100;
+
   }
+
   .header-icon {
+
     width: 38px; height: 38px;
+
     background: var(--accent-dim);
+
     border: 1px solid rgba(74,222,128,0.3);
+
     border-radius: 8px;
+
     display: flex; align-items: center; justify-content: center;
+
     font-size: 18px;
+
   }
+
   .header-title { font-size: 15px; font-weight: 600; color: var(--text); }
+
   .header-sub { font-size: 12px; color: var(--text-dim); font-family: var(--mono); }
+
   .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+
   .status-dot {
+
     width: 8px; height: 8px; border-radius: 50%;
+
     background: var(--text-dimmer);
+
     transition: background 0.3s;
+
   }
+
   .status-dot.connected { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
   .status-dot.saving { background: var(--accent3); animation: pulse 0.8s infinite; }
+
   .status-text { font-size: 12px; color: var(--text-dim); font-family: var(--mono); }
+
+ 
 
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
+ 
+
   /* ─── CONFIG PANEL ─── */
+
   .config-bar {
+
     background: var(--surface);
+
     border-bottom: 1px solid var(--border);
+
     padding: 14px 32px;
+
     display: flex;
+
     gap: 12px;
+
     align-items: center;
+
     flex-wrap: wrap;
+
   }
+
   .config-group { display: flex; flex-direction: column; gap: 4px; min-width: 240px; }
+
   .config-label { font-size: 11px; font-family: var(--mono); color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+
   .config-input {
+
     background: var(--surface2);
+
     border: 1px solid var(--border);
+
     border-radius: 6px;
+
     color: var(--text);
+
     font-family: var(--mono);
+
     font-size: 12px;
+
     padding: 7px 10px;
+
     outline: none;
+
     transition: border-color 0.2s;
+
     width: 100%;
+
   }
+
   .config-input:focus { border-color: var(--accent2); }
+
   .btn {
+
     padding: 8px 18px;
+
     border-radius: 7px;
+
     border: none;
+
     cursor: pointer;
+
     font-family: var(--sans);
+
     font-size: 14px;
+
     font-weight: 500;
+
     transition: all 0.2s;
+
     display: inline-flex; align-items: center; gap: 6px;
+
   }
+
   .btn-primary { background: var(--accent); color: #0f1117; }
+
   .btn-primary:hover { background: #22d865; }
+
   .btn-secondary { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); }
+
   .btn-secondary:hover { border-color: var(--accent2); color: var(--accent2); }
+
   .btn-danger { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.3); }
+
   .btn-danger:hover { background: rgba(248,113,113,0.25); }
+
   .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
+ 
+
   /* ─── LAYOUT ─── */
+
   .app-body { display: flex; height: calc(100vh - 120px); overflow: hidden; }
+
   .sidebar {
+
     width: 280px; min-width: 280px;
+
     background: var(--surface);
+
     border-right: 1px solid var(--border);
+
     display: flex; flex-direction: column;
+
     overflow-y: auto;
+
   }
+
   .main-area { flex: 1; overflow-y: auto; padding: 28px 32px; }
 
+ 
+
   /* ─── SIDEBAR ─── */
+
   .sidebar-section { padding: 16px 16px 8px; }
+
   .sidebar-section-title {
+
     font-size: 10px; font-family: var(--mono);
+
     color: var(--text-dimmer); text-transform: uppercase;
+
     letter-spacing: 0.1em; margin-bottom: 8px;
+
   }
+
   .evaluator-select {
+
     width: 100%;
+
     background: var(--surface2);
+
     border: 1px solid var(--border);
+
     color: var(--text);
+
     font-family: var(--sans);
+
     font-size: 13px;
+
     padding: 8px 10px;
+
     border-radius: 7px;
+
     outline: none;
+
     cursor: pointer;
+
   }
+
   .evaluator-select:focus { border-color: var(--accent); }
 
+ 
+
   .student-list { padding: 8px 0; }
+
   .student-item {
+
     padding: 10px 16px;
+
     cursor: pointer;
+
     border-left: 3px solid transparent;
+
     transition: all 0.15s;
+
     display: flex; flex-direction: column; gap: 2px;
+
   }
+
   .student-item:hover { background: var(--surface2); }
+
   .student-item.active {
+
     background: var(--accent-dim);
+
     border-left-color: var(--accent);
+
   }
+
   .student-name { font-size: 13px; font-weight: 500; }
+
   .student-id { font-size: 11px; color: var(--text-dim); font-family: var(--mono); }
+
   .student-score-badge {
+
     display: inline-flex; align-items: center; gap: 4px;
+
     margin-top: 2px;
+
   }
+
   .score-pill {
+
     font-size: 10px; font-family: var(--mono);
+
     padding: 1px 6px; border-radius: 20px;
+
   }
+
   .score-pill.p1 { background: var(--accent-dim); color: var(--accent); }
+
   .score-pill.p2 { background: var(--accent2-dim); color: var(--accent2); }
+
   .score-pill.p3 { background: var(--accent3-dim); color: var(--accent3); }
+
   .score-pill.empty { background: var(--surface2); color: var(--text-dimmer); }
 
+ 
+
   /* ─── FORM AREA ─── */
+
   .eval-header {
+
     background: var(--surface);
+
     border: 1px solid var(--border);
+
     border-radius: var(--radius);
+
     padding: 20px 24px;
+
     margin-bottom: 20px;
+
   }
+
   .eval-title { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+
   .eval-meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
   .meta-item { display: flex; flex-direction: column; gap: 3px; }
+
   .meta-label { font-size: 11px; color: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.07em; }
+
   .meta-value { font-size: 14px; font-weight: 500; }
 
+ 
+
   /* ─── SCORE SECTIONS ─── */
+
   .score-section {
+
     background: var(--surface);
+
     border: 1px solid var(--border);
+
     border-radius: var(--radius);
+
     margin-bottom: 20px;
+
     overflow: hidden;
+
   }
+
   .score-section-header {
+
     padding: 16px 20px;
+
     display: flex; align-items: center; gap: 12px;
+
     border-bottom: 1px solid var(--border);
+
     cursor: pointer;
+
     user-select: none;
+
   }
+
   .section-num {
+
     width: 28px; height: 28px;
+
     border-radius: 6px;
+
     display: flex; align-items: center; justify-content: center;
+
     font-size: 13px; font-family: var(--mono); font-weight: 600;
+
   }
+
   .section-num.s1 { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(74,222,128,0.3); }
+
   .section-num.s2 { background: var(--accent2-dim); color: var(--accent2); border: 1px solid rgba(96,165,250,0.3); }
+
   .section-num.s3 { background: var(--accent3-dim); color: var(--accent3); border: 1px solid rgba(245,158,11,0.3); }
+
   .section-title-text { font-size: 15px; font-weight: 600; flex: 1; }
+
   .section-max { font-size: 12px; color: var(--text-dim); font-family: var(--mono); }
+
   .section-total-display {
+
     font-size: 18px; font-weight: 700; font-family: var(--mono);
+
     min-width: 60px; text-align: right;
+
   }
+
   .section-total-display.s1-color { color: var(--accent); }
+
   .section-total-display.s2-color { color: var(--accent2); }
+
   .section-total-display.s3-color { color: var(--accent3); }
+
+ 
 
   .score-section-body { padding: 0; }
 
+ 
+
   /* ─── RUBRIC ROW ─── */
+
   .rubric-row {
+
     padding: 18px 20px;
+
     border-bottom: 1px solid var(--border);
+
     display: flex; flex-direction: column; gap: 10px;
+
   }
+
   .rubric-row:last-child { border-bottom: none; }
+
   .rubric-row-top { display: flex; align-items: flex-start; gap: 12px; }
+
   .rubric-num {
+
     font-size: 11px; font-family: var(--mono);
+
     color: var(--text-dimmer); min-width: 22px;
+
     padding-top: 2px;
+
   }
+
   .rubric-info { flex: 1; }
+
   .rubric-criterion { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+
   .rubric-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
 
+ 
+
   /* Score levels grid */
+
   .rubric-levels {
+
     display: grid;
+
     grid-template-columns: repeat(4, 1fr);
+
     gap: 8px;
+
     margin-left: 34px;
+
   }
+
   .level-card {
+
     border: 1.5px solid var(--border);
+
     border-radius: 8px;
+
     padding: 10px 12px;
+
     cursor: pointer;
+
     transition: all 0.15s;
+
     display: flex; flex-direction: column; gap: 4px;
+
     background: var(--surface2);
+
   }
+
   .level-card:hover { border-color: var(--text-dim); }
+
   .level-card.selected-good {
+
     border-color: var(--accent); background: var(--accent-dim);
+
   }
+
   .level-card.selected-medium {
+
     border-color: var(--accent2); background: var(--accent2-dim);
+
   }
+
   .level-card.selected-fair {
+
     border-color: var(--accent3); background: var(--accent3-dim);
+
   }
+
   .level-card.selected-poor {
+
     border-color: var(--danger); background: rgba(248,113,113,0.1);
+
   }
+
   .level-tag {
+
     font-size: 10px; font-family: var(--mono);
+
     font-weight: 600; text-transform: uppercase;
+
     letter-spacing: 0.07em;
+
   }
+
   .tag-good { color: var(--accent); }
+
   .tag-medium { color: var(--accent2); }
+
   .tag-fair { color: var(--accent3); }
+
   .tag-poor { color: var(--danger); }
 
+ 
+
   .level-score-range {
+
     font-size: 11px; font-family: var(--mono);
+
     color: var(--text-dim);
+
   }
+
   .level-desc {
+
     font-size: 11px; color: var(--text-dim);
+
     line-height: 1.45; margin-top: 2px;
+
   }
+
+ 
 
   /* Manual score input */
+
   .score-input-row {
+
     display: flex; align-items: center; gap: 10px;
+
     margin-left: 34px; margin-top: 4px;
+
   }
+
   .score-input-label { font-size: 12px; color: var(--text-dim); }
+
   .score-number-input {
+
     background: var(--surface2);
+
     border: 1.5px solid var(--border);
+
     border-radius: 6px;
+
     color: var(--text);
+
     font-family: var(--mono);
+
     font-size: 15px; font-weight: 600;
+
     width: 80px; text-align: center;
+
     padding: 6px 10px;
+
     outline: none;
+
     transition: border-color 0.2s;
+
   }
+
   .score-number-input:focus { border-color: var(--accent); }
+
   .score-number-input.valid { border-color: var(--accent); }
+
   .score-number-input.invalid { border-color: var(--danger); }
+
   .score-weight-info { font-size: 11px; color: var(--text-dimmer); font-family: var(--mono); }
+
   .score-result-preview {
+
     font-size: 12px;
+
     padding: 4px 10px;
+
     border-radius: 20px;
+
     font-family: var(--mono);
+
     font-weight: 600;
+
   }
+
+ 
 
   /* ─── SUMMARY PANEL ─── */
+
   .summary-panel {
+
     background: var(--surface);
+
     border: 1px solid var(--border);
+
     border-radius: var(--radius);
+
     padding: 20px 24px;
+
     margin-bottom: 20px;
+
     display: grid;
+
     grid-template-columns: repeat(4, 1fr);
+
     gap: 16px;
+
   }
+
   .summary-item { display: flex; flex-direction: column; gap: 4px; }
+
   .summary-label { font-size: 11px; font-family: var(--mono); color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.07em; }
+
   .summary-value { font-size: 26px; font-weight: 700; font-family: var(--mono); }
+
   .summary-max { font-size: 12px; color: var(--text-dimmer); }
+
   .summary-bar { height: 3px; border-radius: 2px; background: var(--border); margin-top: 4px; overflow: hidden; }
+
   .summary-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
 
+ 
+
   /* ─── SAVE BUTTON AREA ─── */
+
   .action-row {
+
     display: flex; gap: 12px; align-items: center;
+
     padding: 20px 0;
+
   }
+
   .save-feedback {
+
     font-size: 13px; font-family: var(--mono);
+
     padding: 8px 14px;
+
     border-radius: 7px;
+
     transition: all 0.3s;
+
   }
+
   .save-feedback.success { background: var(--accent-dim); color: var(--accent); }
+
   .save-feedback.error { background: rgba(248,113,113,0.15); color: var(--danger); }
 
+ 
+
   /* ─── MODAL ─── */
+
   .modal-overlay {
+
     position: fixed; inset: 0;
+
     background: rgba(0,0,0,0.7);
+
     display: flex; align-items: center; justify-content: center;
+
     z-index: 200;
+
     backdrop-filter: blur(4px);
+
   }
+
   .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px 32px; max-width: 520px; width: 90%; }
+
   .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+
   .modal-desc { font-size: 14px; color: var(--text-dim); line-height: 1.6; margin-bottom: 20px; }
+
   .modal-input {
+
     width: 100%;
+
     background: var(--surface2);
+
     border: 1px solid var(--border);
+
     color: var(--text);
+
     font-family: var(--mono); font-size: 13px;
+
     padding: 10px 12px; border-radius: 8px; outline: none;
+
     margin-bottom: 16px;
+
     transition: border-color 0.2s;
+
   }
+
   .modal-input:focus { border-color: var(--accent2); }
+
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
   .hint { font-size: 11px; color: var(--text-dimmer); font-family: var(--mono); line-height: 1.5; }
 
+ 
+
   /* ─── EMPTY STATE ─── */
+
   .empty-state {
+
     display: flex; flex-direction: column; align-items: center;
+
     justify-content: center; gap: 14px;
+
     color: var(--text-dim);
+
     padding: 60px 20px;
+
     text-align: center;
+
   }
+
   .empty-icon { font-size: 40px; }
+
   .empty-title { font-size: 17px; font-weight: 500; }
+
   .empty-desc { font-size: 13px; color: var(--text-dimmer); max-width: 300px; line-height: 1.6; }
 
+ 
+
   /* ─── SCRIPT PANEL ─── */
+
   .script-panel {
+
     background: var(--surface);
+
     border: 1px solid var(--border);
+
     border-radius: var(--radius);
+
     padding: 20px 24px;
+
     margin-bottom: 20px;
+
   }
+
   .script-panel pre {
+
     background: #0a0c14;
+
     border: 1px solid var(--border);
+
     border-radius: 8px;
+
     padding: 14px;
+
     overflow-x: auto;
+
     font-family: var(--mono);
+
     font-size: 11.5px;
+
     color: #a8d8a8;
+
     line-height: 1.6;
+
     margin-top: 12px;
+
   }
+
   .copy-btn {
+
     float: right;
+
     font-size: 11px;
+
     padding: 3px 10px;
+
     margin-top: -2px;
+
     background: var(--surface2);
+
     border: 1px solid var(--border);
+
     color: var(--text-dim);
+
     border-radius: 5px;
+
     cursor: pointer;
+
   }
+
   .copy-btn:hover { border-color: var(--accent2); color: var(--accent2); }
 
+ 
+
   .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+
   .tab {
+
     padding: 10px 20px;
+
     cursor: pointer;
+
     font-size: 14px;
+
     color: var(--text-dim);
+
     border-bottom: 2px solid transparent;
+
     transition: all 0.15s;
+
     margin-bottom: -1px;
+
   }
+
   .tab:hover { color: var(--text); }
+
   .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
+ 
+
   .notice {
+
     background: var(--accent2-dim);
+
     border: 1px solid rgba(96,165,250,0.3);
+
     border-radius: 8px;
+
     padding: 12px 16px;
+
     font-size: 13px;
+
     color: var(--accent2);
+
     margin-bottom: 16px;
+
     display: flex; gap: 8px;
+
   }
+
+ 
 
   /* Scrollbar */
+
   ::-webkit-scrollbar { width: 5px; height: 5px; }
+
   ::-webkit-scrollbar-track { background: transparent; }
+
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
   ::-webkit-scrollbar-thumb:hover { background: var(--text-dimmer); }
+
 </style>
+
 </head>
+
 <body>
 
+ 
+
 <!-- HEADER -->
+
 <div class="header">
+
   <div class="header-icon">🔬</div>
+
   <div>
+
     <div class="header-title">ระบบประเมินการนำเสนอ</div>
+
     <div class="header-sub">Presentation in English for Microbiologist · 30548764</div>
+
   </div>
+
   <div class="header-right">
+
     <div class="status-dot" id="statusDot"></div>
+
     <div class="status-text" id="statusText">ยังไม่เชื่อมต่อ</div>
+
     <button class="btn btn-secondary" onclick="showSetupModal()">⚙ ตั้งค่า</button>
+
   </div>
+
 </div>
+
+ 
 
 <!-- TABS (main navigation) -->
+
 <div style="background:var(--surface); border-bottom:1px solid var(--border); padding: 0 32px;">
+
   <div class="tabs" style="border-bottom:none; margin-bottom:0;">
+
     <div class="tab active" onclick="switchTab('eval', this)">📝 กรอกคะแนน</div>
+
     <div class="tab" onclick="switchTab('summary', this)">📊 สรุปคะแนน</div>
+
   </div>
+
 </div>
+
+ 
 
 <!-- APP BODY -->
+
 <div class="app-body" id="evalTab">
+
   <!-- SIDEBAR -->
+
   <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-section-title">ผู้ประเมิน</div>
-      <select class="evaluator-select" id="evaluatorSelect" onchange="onEvaluatorChange()">
-        <option value="">— เลือกอาจารย์ผู้ประเมิน —</option>
-        <option>ผศ.นิสา ไกรรักษ์</option>
-        <option>ผศ.สุดสายชล หอมทอง</option>
-        <option>ผศ.ดร.สุดารัตน์ สวนจิตร</option>
-        <option>ผศ.ดร.อนุเทพ ภาสุระ</option>
-        <option>ผศ.ดร.อุมาพร ทาไธสง</option>
-        <option>อ.ดร.พัชรนันท์ อมรรัตนพันธ์</option>
-        <option>อ.ปุญญิศา วัฒนะชัย</option>
-        <option>อ.ดร.อภิรักษ์ วิเศษชาติ</option>
-        <option>อ.ดร.วิมลรัตน์ ปานเพ็ชร</option>
-        <option>อ.ปริยา ปะบุญเรือง</option>
-        <option>อ.ดร.คเณศ ธิติอนันต์ปกรณ์</option>
-        <option>อ.ดร.กฤตยพงษ์ จันทรเดช</option>
-      </select>
-    </div>
 
     <div class="sidebar-section">
+
+      <div class="sidebar-section-title">ผู้ประเมิน</div>
+
+      <select class="evaluator-select" id="evaluatorSelect" onchange="onEvaluatorChange()">
+
+        <option value="">— เลือกอาจารย์ผู้ประเมิน —</option>
+
+        <option>ผศ.นิสา ไกรรักษ์</option>
+
+        <option>ผศ.สุดสายชล หอมทอง</option>
+
+        <option>ผศ.ดร.สุดารัตน์ สวนจิตร</option>
+
+        <option>ผศ.ดร.อนุเทพ ภาสุระ</option>
+
+        <option>ผศ.ดร.อุมาพร ทาไธสง</option>
+
+        <option>อ.ดร.พัชรนันท์ อมรรัตนพันธ์</option>
+
+        <option>อ.ปุญญิศา วัฒนะชัย</option>
+
+        <option>อ.ดร.อภิรักษ์ วิเศษชาติ</option>
+
+        <option>อ.ดร.วิมลรัตน์ ปานเพ็ชร</option>
+
+        <option>อ.ปริยา ปะบุญเรือง</option>
+
+        <option>อ.ดร.คเณศ ธิติอนันต์ปกรณ์</option>
+
+        <option>อ.ดร.กฤตยพงษ์ จันทรเดช</option>
+
+      </select>
+
+    </div>
+
+ 
+
+    <div class="sidebar-section">
+
       <div class="sidebar-section-title">นิสิต</div>
+
+      <div style="position:relative; margin-bottom:8px;">
+
+        <span style="position:absolute; left:9px; top:50%; transform:translateY(-50%); color:var(--text-dimmer); font-size:13px; pointer-events:none;">🔍</span>
+
+        <input
+
+          id="studentSearch"
+
+          type="text"
+
+          placeholder="ค้นหารหัส / ชื่อนิสิต..."
+
+          oninput="onSearchInput()"
+
+          style="
+
+            width:100%;
+
+            background:var(--surface2);
+
+            border:1px solid var(--border);
+
+            border-radius:7px;
+
+            color:var(--text);
+
+            font-family:var(--sans);
+
+            font-size:13px;
+
+            padding:8px 10px 8px 30px;
+
+            outline:none;
+
+            transition:border-color 0.2s;
+
+          "
+
+          onfocus="this.style.borderColor='var(--accent2)'"
+
+          onblur="this.style.borderColor='var(--border)'"
+
+        />
+
+      </div>
+
+      <div id="searchCount" style="font-size:11px; color:var(--text-dimmer); font-family:var(--mono); padding:0 2px 6px; display:none;"></div>
+
     </div>
+
     <div class="student-list" id="studentList">
+
       <!-- Populated by JS -->
+
     </div>
+
   </div>
+
+ 
 
   <!-- MAIN EVAL AREA -->
+
   <div class="main-area" id="mainArea">
+
     <div class="empty-state" id="emptyState">
+
       <div class="empty-icon">🎓</div>
+
       <div class="empty-title">เลือกผู้ประเมินและนิสิต</div>
+
       <div class="empty-desc">เลือกอาจารย์ผู้ประเมินจากรายการด้านซ้าย แล้วคลิกชื่อนิสิตที่ต้องการประเมิน</div>
+
     </div>
+
     <div id="formArea" style="display:none;"></div>
+
   </div>
+
 </div>
+
+ 
 
 <!-- SUMMARY TAB -->
+
 <div id="summaryTab" style="display:none; padding: 28px 32px; overflow-y:auto; height:calc(100vh - 120px);">
+
   <div id="summaryContent">
+
     <div class="empty-state">
+
       <div class="empty-icon">📊</div>
+
       <div class="empty-title">ยังไม่มีข้อมูล</div>
+
       <div class="empty-desc">กรอกคะแนนนิสิตในแท็บ "กรอกคะแนน" ก่อน</div>
+
     </div>
+
   </div>
+
 </div>
 
-<!-- SETUP TAB -->
-<div id="setupTab" style="display:none; padding: 28px 32px; overflow-y:auto; height:calc(100vh - 120px);">
-  <div class="notice">ℹ️ ระบบนี้ส่งข้อมูลไปยัง Google Sheets ผ่าน Google Apps Script Web App — ต้องตั้งค่าครั้งเดียวเท่านั้น</div>
+ 
 
-  <div class="script-panel">
-    <h3 style="font-size:15px; font-weight:600; margin-bottom:8px;">ขั้นตอนที่ 1 — เปิด Apps Script</h3>
-    <p style="font-size:13px; color:var(--text-dim); line-height:1.6;">เปิดไฟล์ Google Sheets "แบบประเมินการนำเสนอ" → เมนู <strong>Extensions → Apps Script</strong></p>
-  </div>
-
-  <div class="script-panel">
-    <h3 style="font-size:15px; font-weight:600; margin-bottom:4px;">ขั้นตอนที่ 2 — วาง Code นี้ใน Code.gs</h3>
-    <p style="font-size:13px; color:var(--text-dim); margin-bottom:0;">ลบ code เดิมออกทั้งหมด แล้ววางอันนี้แทน:</p>
-    <pre id="scriptCode"><button class="copy-btn" onclick="copyScript()">Copy</button>
-const SPREADSHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId();
-const SCORES_SHEET_NAME = "คะแนนรวม";
-
-function doGet(e) {
-  return handleRequest(e);
-}
-function doPost(e) {
-  return handleRequest(e);
-}
-
-function handleRequest(e) {
-  const callback = e.parameter.callback;
-  try {
-    const action = e.parameter.action || (e.postData ? JSON.parse(e.postData.contents).action : null);
-    
-    if (action === "saveScore") {
-      const data = e.postData ? JSON.parse(e.postData.contents) : e.parameter;
-      const result = saveScore(data);
-      return output(callback, result);
-    }
-    if (action === "getScores") {
-      const result = getAllScores();
-      return output(callback, result);
-    }
-    if (action === "getStudents") {
-      const result = getStudents();
-      return output(callback, result);
-    }
-    return output(callback, {success: false, error: "Unknown action"});
-  } catch(err) {
-    return output(callback, {success: false, error: err.toString()});
-  }
-}
-
-function output(callback, data) {
-  const json = JSON.stringify(data);
-  if (callback) {
-    return ContentService.createTextOutput(callback + "(" + json + ")")
-      .setMimeType(ContentService.MimeType.JAVASCRIPT);
-  }
-  return ContentService.createTextOutput(json)
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function saveScore(data) {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  let sheet = ss.getSheetByName(SCORES_SHEET_NAME);
-  
-  // สร้าง sheet ใหม่ถ้ายังไม่มี
-  if (!sheet) {
-    sheet = ss.insertSheet(SCORES_SHEET_NAME);
-    const headers = [
-      "timestamp", "evaluator", "studentId", "studentName", "topic",
-      "s1q1", "s1q2", "s1q3", "s1_total",
-      "s2q1", "s2q2", "s2q3", "s2q4", "s2q5", "s2_total",
-      "s3q1", "s3_total",
-      "grand_total"
-    ];
-    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-    sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold");
-  }
-  
-  // ค้นหาแถวที่มีอาจารย์และนิสิตนี้อยู่แล้ว
-  const allData = sheet.getDataRange().getValues();
-  let targetRow = -1;
-  for (let i = 1; i < allData.length; i++) {
-    if (allData[i][1] === data.evaluator && allData[i][2] === data.studentId) {
-      targetRow = i + 1;
-      break;
-    }
-  }
-  
-  const row = [
-    new Date().toISOString(),
-    data.evaluator,
-    data.studentId,
-    data.studentName,
-    data.topic || "",
-    data.s1q1 || 0, data.s1q2 || 0, data.s1q3 || 0, data.s1_total || 0,
-    data.s2q1 || 0, data.s2q2 || 0, data.s2q3 || 0, data.s2q4 || 0, data.s2q5 || 0, data.s2_total || 0,
-    data.s3q1 || 0, data.s3_total || 0,
-    data.grand_total || 0
-  ];
-  
-  if (targetRow > 0) {
-    sheet.getRange(targetRow, 1, 1, row.length).setValues([row]);
-  } else {
-    sheet.appendRow(row);
-  }
-  
-  return {success: true, message: "บันทึกสำเร็จ", row: targetRow > 0 ? targetRow : sheet.getLastRow()};
-}
-
-function getAllScores() {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheet = ss.getSheetByName(SCORES_SHEET_NAME);
-  if (!sheet) return {success: true, scores: []};
-  const data = sheet.getDataRange().getValues();
-  if (data.length <= 1) return {success: true, scores: []};
-  const headers = data[0];
-  const scores = data.slice(1).map(row => {
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = row[i]);
-    return obj;
-  });
-  return {success: true, scores};
-}
-
-function getStudents() {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheet = ss.getSheetByName("รายชื่อนิสิต");
-  if (!sheet) return {success: true, students: []};
-  const data = sheet.getDataRange().getValues();
-  const students = data.slice(1).filter(r => r[1]).map(r => ({
-    order: r[0], id: String(r[1]), name: r[2], topic: r[3], 
-    abstract: r[4], date: r[9]
-  }));
-  return {success: true, students};
-}
-    </pre>
-  </div>
-
-  <div class="script-panel">
-    <h3 style="font-size:15px; font-weight:600; margin-bottom:8px;">ขั้นตอนที่ 3 — Deploy เป็น Web App</h3>
-    <p style="font-size:13px; color:var(--text-dim); line-height:1.8;">
-      1. คลิก <strong>Deploy → New deployment</strong><br>
-      2. เลือก Type: <strong>Web app</strong><br>
-      3. Execute as: <strong>Me</strong><br>
-      4. Who has access: <strong>Anyone</strong> (หรือ "Anyone within [organization]")<br>
-      5. คลิก <strong>Deploy</strong> → Copy URL ที่ได้
-    </p>
-  </div>
-
-  <div class="script-panel">
-    <h3 style="font-size:15px; font-weight:600; margin-bottom:8px;">ขั้นตอนที่ 4 — ใส่ URL ในระบบนี้</h3>
-    <p style="font-size:13px; color:var(--text-dim); line-height:1.6;">กลับมาที่หน้านี้ → คลิก <strong>⚙ ตั้งค่า</strong> มุมขวาบน → วาง URL ที่ได้จาก Apps Script</p>
-    <div style="margin-top:12px;">
-      <button class="btn btn-primary" onclick="showSetupModal()">⚙ เปิดหน้าตั้งค่า URL</button>
-    </div>
-  </div>
-</div>
+ 
 
 <!-- SETUP MODAL -->
+
 <div class="modal-overlay" id="setupModal" style="display:none;">
+
   <div class="modal">
+
     <div class="modal-title">⚙ ตั้งค่าการเชื่อมต่อ</div>
+
     <div class="modal-desc">ใส่ URL ของ Google Apps Script Web App เพื่อเชื่อมต่อกับ Google Sheets โดยตรง</div>
+
     <label style="font-size:12px; font-family:var(--mono); color:var(--text-dim); display:block; margin-bottom:6px;">APPS SCRIPT WEB APP URL</label>
+
     <input class="modal-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec" />
+
     <div class="hint" style="margin-top:-8px; margin-bottom:16px;">
-      ดูวิธีสร้าง Web App ได้ที่แท็บ "วิธีตั้งค่า Apps Script"
+
+      ใส่ URL ที่ได้จากการ Deploy Apps Script Web App
+
     </div>
+
     <div class="modal-actions">
+
       <button class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
+
       <button class="btn btn-primary" onclick="saveConfig()">💾 บันทึกการตั้งค่า</button>
+
     </div>
+
   </div>
+
 </div>
 
+ 
+
 <script>
+
 // ─── DATA ───────────────────────────────────────────────────────────
+
 const SECTIONS = {
+
   s1: {
+
     id: 's1', num: '1', label: 'ชื่อเรื่องและบทคัดย่อ', max: 30, color: 's1',
+
     criteria: [
+
       {
+
         id: 's1q1', name: 'ความซื่อสัตย์ในการตั้งชื่อเรื่องและเขียนบทคัดย่อ',
+
         desc: 'พิจารณาจากคะแนน Plagiarism และ AI detection',
+
         levels: [
+
           {label:'ดี', tag:'good', range:'8 – 10 คะแนน', max:10, min:8, desc:'ตั้งชื่อเรื่องและเขียนบทคัดย่อด้วยภาษาของตนเองอย่างชัดเจน ไม่มีลักษณะของการคัดลอก'},
+
           {label:'ปานกลาง', tag:'medium', range:'5 – 7.9 คะแนน', max:7.9, min:5, desc:'ใช้ภาษาเขียนส่วนใหญ่เป็นของตนเอง มีบางส่วนที่คล้ายแหล่งข้อมูลเดิมเล็กน้อย'},
+
           {label:'พอใช้', tag:'fair', range:'1 – 4.9 คะแนน', max:4.9, min:1, desc:'เรียบเรียงด้วยตนเองบางส่วน แต่ยังพบข้อความจากต้นฉบับจำนวนมาก'},
+
           {label:'ปรับปรุง', tag:'poor', range:'0 คะแนน', max:0, min:0, desc:'การคัดลอก และการใช้ข้อมูลไม่เหมาะสม หรือรายงานข้อมูลที่ไม่ตรงแหล่งอ้างอิง'}
+
         ]
+
       },
+
       {
+
         id: 's1q2', name: 'ความเหมาะสมของชื่อเรื่อง',
+
         desc: 'ชื่อเรื่องชัดเจน กระชับ สะท้อนประเด็นสำคัญจากวารสาร',
+
         levels: [
+
           {label:'ดี', tag:'good', range:'4 – 5 คะแนน', max:5, min:4, desc:'ชื่อเรื่องชัดเจน กระชับ ถูกต้องตามหลักวิชาการ สะท้อนประเด็นสำคัญจากวารสารที่เลือก'},
+
           {label:'ปานกลาง', tag:'medium', range:'2 – 3.9 คะแนน', max:3.9, min:2, desc:'สอดคล้องกับเนื้อหาโดยรวม แต่อาจยังกว้างเกินไป หรือยังสะท้อนการบูรณาการไม่ชัดเจน'},
+
           {label:'พอใช้', tag:'fair', range:'1 – 1.9 คะแนน', max:1.9, min:1, desc:'พอเข้าใจได้ แต่ขาดความเฉพาะเจาะจง หรือขาดสาระสำคัญของเนื้อหา'},
+
           {label:'ปรับปรุง', tag:'poor', range:'0 คะแนน', max:0, min:0, desc:'ไม่ชัดเจน หรือไม่สอดคล้องกับเนื้อหา'}
+
         ]
+
       },
+
       {
+
         id: 's1q3', name: 'การเขียนบทคัดย่อ',
+
         desc: 'บทคัดย่อมีองค์ประกอบครบ: บทนำ วัตถุประสงค์ วิธีการ ผลการศึกษา ข้อสรุป',
+
         levels: [
+
           {label:'ดี', tag:'good', range:'11 – 15 คะแนน', max:15, min:11, desc:'บทคัดย่อมีองค์ประกอบครบถ้วน เชื่อมโยงวารสารที่เลือกเป็นเรื่องราวเดียวกันได้อย่างราบรื่น'},
+
           {label:'ปานกลาง', tag:'medium', range:'8 – 10.9 คะแนน', max:10.9, min:8, desc:'มีองค์ประกอบสำคัญส่วนใหญ่ แต่ยังมีขาดความต่อเนื่อง หรือการเชื่อมโยงเนื้อหา'},
+
           {label:'พอใช้', tag:'fair', range:'1 – 7.9 คะแนน', max:7.9, min:1, desc:'พอเข้าใจได้ แต่ขาดองค์ประกอบสำคัญบางส่วน มีลักษณะเป็นการสรุปแยกส่วน'},
+
           {label:'ปรับปรุง', tag:'poor', range:'0 คะแนน', max:0, min:0, desc:'ไม่สามารถสื่อสารสาระสำคัญได้ ขาดองค์ประกอบสำคัญหลายส่วน'}
+
         ]
+
       }
+
     ]
+
   },
+
   s2: {
+
     id: 's2', num: '2', label: 'การนำเสนอ', max: 45, color: 's2',
+
     criteria: [
+
       {
+
         id: 's2q1', name: 'การวิเคราะห์และสรุปสาระสำคัญทางจุลชีววิทยาจากวารสารทั้งสองเรื่อง',
+
         desc: 'อธิบายที่มา วัตถุประสงค์ วิธีการ ผลการศึกษา และความสำคัญของวารสาร',
+
         levels: [
+
           {label:'ดี', tag:'good', range:'18 – 25 คะแนน', max:25, min:18, desc:'อธิบายครบถ้วน เชื่อมโยงเป็นประเด็นทางจุลชีววิทยาเดียวกันได้อย่างมีเหตุผล'},
+
           {label:'ปานกลาง', tag:'medium', range:'13 – 17.9 คะแนน', max:17.9, min:13, desc:'ถูกต้องเป็นส่วนใหญ่ แต่ยังขาดรายละเอียดบางประเด็น หรือการวิเคราะห์ยังไม่ลึกพอ'},
+
           {label:'พอใช้', tag:'fair', range:'1 – 12.9 คะแนน', max:12.9, min:1, desc:'นำเสนอได้ในระดับพื้นฐาน แต่ยังมีการวิเคราะห์จำกัด ขาดความต่อเนื่อง'},
+
           {label:'ปรับปรุง', tag:'poor', range:'0 คะแนน', max:0, min:0, desc:'มีข้อผิดพลาดทางวิชาการสำคัญ ไม่สามารถเชื่อมโยงวารสารที่เลือกได้'}
+
         ]
+
       },
+
       {
+
         id: 's2q2', name: 'รูปแบบสไลด์และการใช้สื่อดิจิทัล',
+
         desc: 'สไลด์ชัดเจน เป็นระเบียบ ใช้ภาพ ตาราง แผนภาพประกอบได้เหมาะสม',
+
         levels: [
+
           {label:'ดี', tag:'good', range:'4 – 5 คะแนน', max:5, min:4, desc:'สไลด์ชัดเจน เป็นระเบียบ อ่านง่าย ใช้สื่อช่วยให้เข้าใจเนื้อหาทางวิทยาศาสตร์ได้ดี'},
+
           {label:'ปานกลาง', tag:'medium', range:'2 – 3.9 คะแนน', max:3.9, min:2, desc:'สื่อสารได้โดยรวม แต่มีข้อบกพร่องบางส่วน เช่น ข้อความมากเกินไป'},
+
           {label:'พอใช้', tag:'fair', range:'1 – 1.9 คะแนน', max:1.9, min:1, desc:'ติดตามได้ค่อนข้างยาก การจัดวางไม่เหมาะสม'},
+
           {label:'ปรับปรุง', tag:'poor', range:'0 คะแนน', max:0, min:0, desc:'สไลด์ไม่เหมาะสม อ่านยาก สับสน ไม่ช่วยในการสื่อสาร'}
+
         ]
+
       },
+
       {
+
         id: 's2q3', name: 'บุคลิกภาพและความมั่นใจขณะนำเสนอ',
+
         desc: 'นำเสนอด้วยความมั่นใจ น้ำเสียงชัดเจน มีการสบตาผู้ฟัง',
+
         levels: [
+
           {label:'ดี', tag:'good', range:'4 – 5 คะแนน', max:5, min:4, desc:'นำเสนอด้วยความมั่นใจ น้ำเสียงชัดเจน บุคลิกภาพเหมาะสม มีการสบตาผู้ฟัง'},
+
           {label:'ปานกลาง', tag:'medium', range:'2 – 3.9 คะแนน', max:3.9, min:2, desc:'นำเสนอได้เข้าใจ แต่ยังขาดความมั่นใจ การสบตาไม่สม่ำเสมอ'},
+
           {label:'พอใช้', tag:'fair', range:'1 – 1.9 คะแนน', max:1.9, min:1, desc:'อ่านจากสไลด์เป็นส่วนใหญ่ มีปฏิสัมพันธ์กับผู้ฟังค่อนข้างน้อย'},
+
           {label:'ปรับปรุง', tag:'poor', range:'0 คะแนน', max:0, min:0, desc:'นำเสนอด้วยความไม่มั่นใจ น้ำเสียงไม่ชัดเจน ผู้ฟังติดตามเนื้อหาได้ยาก'}
+
         ]
+
       },
+
       {
+
         id: 's2q4', name: 'ความเชื่อมโยงของเนื้อหากับหลักการทางจุลชีววิทยา',
+
         desc: 'เชื่อมโยงเนื้อหา วิธีการ ผลการศึกษาจากวารสารกับหลักการทางจุลชีววิทยา',
+
         levels: [
+
           {label:'ดี', tag:'good', range:'4 – 5 คะแนน', max:5, min:4, desc:'เชื่อมโยงกับหลักการทางจุลชีววิทยา หรือวิธีมาตรฐานสากลได้อย่างชัดเจนและถูกต้อง'},
+
           {label:'ปานกลาง', tag:'medium', range:'2 – 3.9 คะแนน', max:3.9, min:2, desc:'มีการเชื่อมโยงได้พอสมควร แต่บางประเด็นยังอธิบายไม่ชัดเจน'},
+
           {label:'พอใช้', tag:'fair', range:'1 – 1.9 คะแนน', max:1.9, min:1, desc:'กล่าวถึงหลักการเพียงเล็กน้อย แต่ยังไม่สามารถอธิบายความเชื่อมโยงได้ชัดเจน'},
+
           {label:'ปรับปรุง', tag:'poor', range:'0 คะแนน', max:0, min:0, desc:'ขาดการเชื่อมโยงกับหลักการทางจุลชีววิทยาที่เกี่ยวข้อง'}
+
         ]
+
       },
+
       {
+
         id: 's2q5', name: 'การจัดการเวลาในการนำเสนอ (10–15 นาที)',
+
         desc: 'นำเสนออยู่ในช่วงเวลาที่กำหนด และจัดลำดับเนื้อหาเหมาะสมครบถ้วน',
+
         levels: [
+
           {label:'ดี', tag:'good', range:'4 – 5 คะแนน', max:5, min:4, desc:'นำเสนออยู่ในช่วงเวลาที่กำหนด 10–15 นาที และจัดลำดับเนื้อหาเหมาะสมครบถ้วน'},
+
           {label:'ปานกลาง', tag:'medium', range:'2 – 3.9 คะแนน', max:3.9, min:2, desc:'ใช้เวลาเกินหรือน้อยกว่าเล็กน้อย แต่ยังนำเสนอประเด็นสำคัญได้ค่อนข้างครบ'},
+
           {label:'พอใช้', tag:'fair', range:'1 – 1.9 คะแนน', max:1.9, min:1, desc:'ใช้เวลาไม่เหมาะสม ทำให้บางส่วนของเนื้อหาถูกเร่ง หรือขาดความสมดุล'},
+
           {label:'ปรับปรุง', tag:'poor', range:'0 คะแนน', max:0, min:0, desc:'ใช้เวลาสั้นหรือยาวเกินไปอย่างชัดเจน ส่งผลต่อความครบถ้วนของการนำเสนอ'}
+
         ]
+
       }
+
     ]
+
   },
+
   s3: {
+
     id: 's3', num: '3', label: 'การถาม-ตอบ', max: 15, color: 's3',
+
     criteria: [
+
       {
+
         id: 's3q1', name: 'ทักษะในการตอบคำถาม',
+
         desc: 'ตอบคำถามได้ตรงประเด็น ถูกต้อง และมีเหตุผล แสดงความเข้าใจในวารสารที่เลือก',
+
         levels: [
+
           {label:'ดี', tag:'good', range:'11 – 15 คะแนน', max:15, min:11, desc:'ตอบคำถามได้ตรงประเด็น ถูกต้อง และมีเหตุผล สามารถอธิบายหลักฐานหรือเหตุผลทางวิทยาศาสตร์ประกอบได้'},
+
           {label:'ปานกลาง', tag:'medium', range:'8 – 10.9 คะแนน', max:10.9, min:8, desc:'ตอบคำถามได้ถูกต้องเป็นส่วนใหญ่ แต่ยังขาดรายละเอียดเชิงลึก หรือความมั่นใจบางประเด็น'},
+
           {label:'พอใช้', tag:'fair', range:'1 – 7.9 คะแนน', max:7.9, min:1, desc:'ตอบได้เพียงบางส่วน หรือยังไม่สามารถอธิบายเหตุผลทางวิทยาศาสตร์ได้ชัดเจน'},
+
           {label:'ปรับปรุง', tag:'poor', range:'0 คะแนน', max:0, min:0, desc:'ไม่สามารถตอบคำถามได้อย่างเหมาะสม ให้ข้อมูลคลาดเคลื่อน'}
+
         ]
+
       }
+
     ]
+
   }
+
 };
+
+ 
 
 // ─── STATE ──────────────────────────────────────────────────────────
+
 let state = {
-  scriptUrl: localStorage.getItem('scriptUrl') || 'https://script.google.com/macros/s/AKfycbwhe8eq-hKDMJ2zq2SZLI6qEnUqRKn84UHZKjB7AxVxX-ME1yyPfZ16nOiKSLv2x062Gw/exec',
+
+  scriptUrl: localStorage.getItem('scriptUrl') || '',
+
   evaluator: '',
+
   selectedStudent: null,
+
   scores: {}, // { 'evaluatorName_studentId': { s1q1: 0, ... } }
+
   students: [
+
     { id: '65030222', name: 'นาย วรเมธ ใจซื่อ', topic: '', date: '23 มิถุนายน 2569' },
+
     { id: '65030374', name: 'นาย พุฒิพงศ์ โวหารลึก', topic: '', date: '23 มิถุนายน 2569' }
+
   ],
+
   connected: false,
+
   saving: false
+
 };
+
+ 
 
 // ─── INIT ────────────────────────────────────────────────────────────
+
 window.onload = function() {
+
   if (state.scriptUrl) {
+
     document.getElementById('scriptUrl').value = state.scriptUrl;
+
     loadStudentsFromSheet();
+
   }
+
   renderStudentList();
+
   updateStatus('disconnected');
+
 };
+
+ 
 
 // ─── TAB SWITCH ──────────────────────────────────────────────────────
+
 function switchTab(tab, el) {
+
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
   el.classList.add('active');
+
   document.getElementById('evalTab').style.display = tab === 'eval' ? 'flex' : 'none';
+
   document.getElementById('summaryTab').style.display = tab === 'summary' ? 'block' : 'none';
-  document.getElementById('setupTab').style.display = tab === 'setup' ? 'block' : 'none';
+
   if (tab === 'summary') renderSummary();
+
 }
+
+ 
 
 // ─── STATUS ──────────────────────────────────────────────────────────
+
 function updateStatus(s) {
+
   const dot = document.getElementById('statusDot');
+
   const txt = document.getElementById('statusText');
+
   dot.className = 'status-dot';
+
   if (s === 'connected') { dot.classList.add('connected'); txt.textContent = 'เชื่อมต่อแล้ว'; }
+
   else if (s === 'saving') { dot.classList.add('saving'); txt.textContent = 'กำลังบันทึก...'; }
+
   else { txt.textContent = state.scriptUrl ? 'URL พร้อมใช้งาน' : 'ยังไม่มี URL'; }
+
 }
+
+ 
 
 // ─── CONFIG / MODAL ──────────────────────────────────────────────────
+
 function showSetupModal() {
+
   document.getElementById('scriptUrl').value = state.scriptUrl;
+
   document.getElementById('setupModal').style.display = 'flex';
+
 }
+
 function closeModal() {
+
   document.getElementById('setupModal').style.display = 'none';
+
 }
+
 function saveConfig() {
+
   const url = document.getElementById('scriptUrl').value.trim();
+
   state.scriptUrl = url;
+
   localStorage.setItem('scriptUrl', url);
+
   closeModal();
+
   if (url) { loadStudentsFromSheet(); }
+
   updateStatus('disconnected');
+
 }
+
+ 
 
 // ─── LOAD STUDENTS FROM SHEET ────────────────────────────────────────
+
 function loadStudentsFromSheet() {
+
   if (!state.scriptUrl) return;
+
   const url = state.scriptUrl + '?action=getStudents&callback=handleStudents';
+
   const script = document.createElement('script');
+
   script.src = url;
+
   document.body.appendChild(script);
+
   setTimeout(() => script.remove(), 5000);
+
 }
+
 window.handleStudents = function(data) {
+
   if (data.success && data.students && data.students.length) {
+
     state.students = data.students;
+
     renderStudentList();
+
     updateStatus('connected');
+
   }
+
 };
 
-// ─── RENDER STUDENT LIST ─────────────────────────────────────────────
-function renderStudentList() {
-  const list = document.getElementById('studentList');
-  list.innerHTML = '';
-  state.students.forEach(s => {
-    const key = getScoreKey(state.evaluator, s.id);
-    const sc = state.scores[key] || {};
-    const s1 = sc.s1_total || 0, s2 = sc.s2_total || 0, s3 = sc.s3_total || 0;
-    const isActive = state.selectedStudent && state.selectedStudent.id === s.id;
-    const div = document.createElement('div');
-    div.className = 'student-item' + (isActive ? ' active' : '');
-    div.onclick = () => selectStudent(s);
-    div.innerHTML = `
-      <div class="student-name">${s.name}</div>
-      <div class="student-id">${s.id}</div>
-      <div class="student-score-badge">
-        <span class="score-pill ${s1 > 0 ? 'p1' : 'empty'}">ส1: ${s1}</span>
-        <span class="score-pill ${s2 > 0 ? 'p2' : 'empty'}">ส2: ${s2}</span>
-        <span class="score-pill ${s3 > 0 ? 'p3' : 'empty'}">ส3: ${s3}</span>
-      </div>
-    `;
-    list.appendChild(div);
-  });
+ 
+
+// ─── SEARCH ──────────────────────────────────────────────────────────
+
+function onSearchInput() {
+
+  renderStudentList();
+
 }
+
+ 
+
+function getSearchQuery() {
+
+  const el = document.getElementById('studentSearch');
+
+  return el ? el.value.trim().toLowerCase() : '';
+
+}
+
+ 
+
+// ─── RENDER STUDENT LIST ─────────────────────────────────────────────
+
+function renderStudentList() {
+
+  const list = document.getElementById('studentList');
+
+  const query = getSearchQuery();
+
+  list.innerHTML = '';
+
+ 
+
+  const filtered = state.students.filter(s => {
+
+    if (!query) return true;
+
+    return s.id.toLowerCase().includes(query) || s.name.toLowerCase().includes(query);
+
+  });
+
+ 
+
+  // Update search count badge
+
+  const countEl = document.getElementById('searchCount');
+
+  if (countEl) {
+
+    if (query) {
+
+      countEl.style.display = 'block';
+
+      countEl.textContent = `พบ ${filtered.length} / ${state.students.length} คน`;
+
+    } else {
+
+      countEl.style.display = 'none';
+
+    }
+
+  }
+
+ 
+
+  if (filtered.length === 0) {
+
+    list.innerHTML = `<div style="padding:16px; text-align:center; color:var(--text-dimmer); font-size:13px;">ไม่พบนิสิตที่ค้นหา</div>`;
+
+    return;
+
+  }
+
+ 
+
+  filtered.forEach(s => {
+
+    const key = getScoreKey(state.evaluator, s.id);
+
+    const sc = state.scores[key] || {};
+
+    const s1 = sc.s1_total || 0, s2 = sc.s2_total || 0, s3 = sc.s3_total || 0;
+
+    const isActive = state.selectedStudent && state.selectedStudent.id === s.id;
+
+ 
+
+    // Highlight matching text
+
+    const nameDisplay = query ? highlightText(s.name, query) : s.name;
+
+    const idDisplay = query ? highlightText(s.id, query) : s.id;
+
+ 
+
+    const div = document.createElement('div');
+
+    div.className = 'student-item' + (isActive ? ' active' : '');
+
+    div.onclick = () => selectStudent(s);
+
+    div.innerHTML = `
+
+      <div class="student-name">${nameDisplay}</div>
+
+      <div class="student-id">${idDisplay}</div>
+
+      <div class="student-score-badge">
+
+        <span class="score-pill ${s1 > 0 ? 'p1' : 'empty'}">ส1: ${s1}</span>
+
+        <span class="score-pill ${s2 > 0 ? 'p2' : 'empty'}">ส2: ${s2}</span>
+
+        <span class="score-pill ${s3 > 0 ? 'p3' : 'empty'}">ส3: ${s3}</span>
+
+      </div>
+
+    `;
+
+    list.appendChild(div);
+
+  });
+
+}
+
+ 
+
+function highlightText(text, query) {
+
+  if (!query) return text;
+
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+
+  return text.replace(regex, '<mark style="background:rgba(96,165,250,0.3); color:var(--accent2); border-radius:2px; padding:0 1px;">$1</mark>');
+
+}
+
+ 
 
 // ─── EVALUATOR CHANGE ────────────────────────────────────────────────
+
 function onEvaluatorChange() {
+
   state.evaluator = document.getElementById('evaluatorSelect').value;
+
   renderStudentList();
+
   if (state.selectedStudent) renderForm();
+
 }
+
+ 
 
 // ─── SELECT STUDENT ──────────────────────────────────────────────────
+
 function selectStudent(student) {
+
   if (!state.evaluator) {
+
     alert('กรุณาเลือกผู้ประเมินก่อน');
+
     return;
+
   }
+
   state.selectedStudent = student;
+
   renderStudentList();
+
   document.getElementById('emptyState').style.display = 'none';
+
   document.getElementById('formArea').style.display = 'block';
+
   renderForm();
+
 }
+
+ 
 
 // ─── SCORE KEY ───────────────────────────────────────────────────────
+
 function getScoreKey(evaluator, studentId) {
+
   return `${evaluator}__${studentId}`;
+
 }
+
 function getOrInitScores(key) {
+
   if (!state.scores[key]) {
+
     state.scores[key] = { s1q1:null, s1q2:null, s1q3:null, s1_total:0, s2q1:null, s2q2:null, s2q3:null, s2q4:null, s2q5:null, s2_total:0, s3q1:null, s3_total:0, grand_total:0 };
+
   }
+
   return state.scores[key];
+
 }
+
+ 
 
 // ─── RENDER FORM ─────────────────────────────────────────────────────
+
 function renderForm() {
+
   const st = state.selectedStudent;
+
   const key = getScoreKey(state.evaluator, st.id);
+
   const sc = getOrInitScores(key);
+
   const area = document.getElementById('formArea');
 
+ 
+
   area.innerHTML = `
+
     <!-- Student Header -->
+
     <div class="eval-header">
+
       <div class="eval-title">📋 แบบประเมิน</div>
+
       <div class="eval-meta">
+
         <div class="meta-item"><div class="meta-label">ผู้ประเมิน</div><div class="meta-value">${state.evaluator}</div></div>
+
         <div class="meta-item"><div class="meta-label">นิสิต</div><div class="meta-value">${st.name}</div></div>
+
         <div class="meta-item"><div class="meta-label">รหัสนิสิต</div><div class="meta-value" style="font-family:var(--mono)">${st.id}</div></div>
+
       </div>
+
       ${st.topic ? `<div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border); font-size:13px; color:var(--text-dim);">🔬 หัวข้อ: ${st.topic}</div>` : ''}
+
     </div>
+
+ 
 
     <!-- Summary -->
+
     <div class="summary-panel" id="summaryPanel"></div>
 
+ 
+
     <!-- Sections -->
+
     ${renderSection(SECTIONS.s1, sc)}
+
     ${renderSection(SECTIONS.s2, sc)}
+
     ${renderSection(SECTIONS.s3, sc)}
 
+ 
+
     <!-- Action Row -->
+
     <div class="action-row">
+
       <button class="btn btn-primary" onclick="saveToSheet()" id="saveBtn" ${!state.scriptUrl ? 'disabled title="กรุณาตั้งค่า Apps Script URL ก่อน"' : ''}>
+
         💾 บันทึกลง Google Sheets
+
       </button>
+
       <button class="btn btn-secondary" onclick="clearForm()">🗑 ล้างคะแนน</button>
+
       <div class="save-feedback" id="saveFeedback" style="display:none;"></div>
+
     </div>
+
   `;
+
   updateSummaryPanel(sc);
+
   if (!state.scriptUrl) {
+
     document.getElementById('saveFeedback').style.display = 'block';
+
     document.getElementById('saveFeedback').className = 'save-feedback error';
-    document.getElementById('saveFeedback').textContent = '⚠ ยังไม่ได้ตั้งค่า URL → ไปที่ "วิธีตั้งค่า Apps Script"';
+
+    document.getElementById('saveFeedback').textContent = '⚠ ยังไม่ได้ตั้งค่า URL → คลิก ⚙ ตั้งค่า มุมขวาบน';
+
   }
+
 }
+
+ 
 
 function renderSection(sec, sc) {
+
   const criteriaHtml = sec.criteria.map((c, ci) => `
+
     <div class="rubric-row">
+
       <div class="rubric-row-top">
+
         <div class="rubric-num">${ci + 1}.</div>
+
         <div class="rubric-info">
+
           <div class="rubric-criterion">${c.name}</div>
+
           <div class="rubric-desc">${c.desc}</div>
+
         </div>
+
       </div>
+
       <div class="rubric-levels">
+
         ${c.levels.map((lv, li) => {
+
           const selClass = (sc[c.id] !== null && levelMatchFor(sc[c.id], c, li)) ? `selected-${lv.tag}` : '';
+
           return `<div class="level-card ${selClass}" onclick="selectLevel('${c.id}', ${li}, this, '${sec.id}')">
+
             <span class="level-tag tag-${lv.tag}">${lv.label}</span>
+
             <span class="level-score-range">${lv.range}</span>
+
             <span class="level-desc">${lv.desc}</span>
+
           </div>`;
+
         }).join('')}
+
       </div>
+
       <div class="score-input-row">
+
         <span class="score-input-label">ระดับคะแนน:</span>
+
         <input class="score-number-input ${sc[c.id] !== null ? 'valid' : ''}" 
+
           id="input_${c.id}" 
+
           type="number" step="0.1" min="0" max="${c.levels[0].max}"
+
           value="${sc[c.id] !== null ? sc[c.id] : ''}"
+
           oninput="onScoreInput('${c.id}', this.value, '${sec.id}')"
+
           placeholder="0–${c.levels[0].max}">
+
         <span class="score-weight-info">/ ${c.levels[0].max} คะแนน</span>
+
       </div>
+
     </div>
+
   `).join('');
 
+ 
+
   const totalVal = sec.id === 's1' ? sc.s1_total : (sec.id === 's2' ? sc.s2_total : sc.s3_total);
+
   const colorClass = sec.id + '-color';
 
+ 
+
   return `
+
     <div class="score-section">
+
       <div class="score-section-header">
+
         <div class="section-num ${sec.color}">ส${sec.num}</div>
+
         <div class="section-title-text">ส่วนที่ ${sec.num} — ${sec.label}</div>
+
         <span class="section-max">(${sec.max} คะแนน)</span>
+
         <div class="section-total-display ${colorClass}" id="sectionTotal_${sec.id}">${totalVal || 0}</div>
+
       </div>
+
       <div class="score-section-body">${criteriaHtml}</div>
+
     </div>
+
   `;
+
 }
+
+ 
 
 function levelMatchFor(val, criterion, levelIndex) {
+
   const lv = criterion.levels[levelIndex];
+
   if (levelIndex === criterion.levels.length - 1) return val <= lv.max && val >= 0;
+
   if (levelIndex === 0) return val >= lv.min && val <= lv.max;
+
   return val >= lv.min && val <= lv.max;
+
 }
+
+ 
 
 function selectLevel(criterionId, levelIdx, cardEl, sectionId) {
+
   const key = getScoreKey(state.evaluator, state.selectedStudent.id);
+
   const sc = getOrInitScores(key);
+
   const sec = SECTIONS[sectionId];
+
   const criterion = sec.criteria.find(c => c.id === criterionId);
+
   const lv = criterion.levels[levelIdx];
+
   
+
   // Set default to midpoint of range
+
   let defaultVal;
+
   if (lv.min === 0 && lv.max === 0) defaultVal = 0;
+
   else defaultVal = Math.round((lv.min + lv.max) / 2 * 10) / 10;
+
   
+
   sc[criterionId] = defaultVal;
+
   const inputEl = document.getElementById('input_' + criterionId);
+
   if (inputEl) { inputEl.value = defaultVal; inputEl.className = 'score-number-input valid'; }
+
   recalcSection(sc, sectionId);
+
   updateSectionTotal(sc, sectionId);
+
   updateSummaryPanel(sc);
+
   
+
   // Update card highlights
+
   const allCards = cardEl.parentElement.querySelectorAll('.level-card');
+
   allCards.forEach((c, i) => {
+
     c.className = 'level-card';
+
     if (i === levelIdx) c.classList.add(`selected-${criterion.levels[i].tag}`);
+
   });
+
 }
+
+ 
 
 function onScoreInput(criterionId, val, sectionId) {
+
   const key = getScoreKey(state.evaluator, state.selectedStudent.id);
+
   const sc = getOrInitScores(key);
+
   const numVal = parseFloat(val);
+
   const sec = SECTIONS[sectionId];
+
   const criterion = sec.criteria.find(c => c.id === criterionId);
+
   const maxVal = criterion.levels[0].max;
+
   
+
   const inputEl = document.getElementById('input_' + criterionId);
+
   if (isNaN(numVal) || numVal < 0 || numVal > maxVal) {
+
     inputEl.className = 'score-number-input invalid';
+
     return;
+
   }
+
   inputEl.className = 'score-number-input valid';
+
   sc[criterionId] = numVal;
+
   recalcSection(sc, sectionId);
+
   updateSectionTotal(sc, sectionId);
+
   updateSummaryPanel(sc);
+
   
+
   // Highlight matching level card
+
   const container = inputEl.closest('.rubric-row');
+
   if (container) {
+
     const cards = container.querySelectorAll('.level-card');
+
     cards.forEach((card, i) => {
+
       card.className = 'level-card';
+
       const lv = criterion.levels[i];
+
       const match = (i === criterion.levels.length - 1) ? (numVal >= 0 && numVal <= lv.max) : (numVal >= lv.min && numVal <= lv.max);
+
       if (match) card.classList.add(`selected-${lv.tag}`);
+
     });
+
   }
+
 }
+
+ 
 
 function recalcSection(sc, sectionId) {
+
   const sec = SECTIONS[sectionId];
+
   let total = 0;
+
   sec.criteria.forEach(c => { if (sc[c.id] !== null) total += (sc[c.id] || 0); });
+
   sc[sectionId + '_total'] = Math.round(total * 10) / 10;
+
   sc.grand_total = Math.round(((sc.s1_total||0) + (sc.s2_total||0) + (sc.s3_total||0)) * 10) / 10;
+
 }
+
+ 
 
 function updateSectionTotal(sc, sectionId) {
+
   const el = document.getElementById('sectionTotal_' + sectionId);
+
   if (el) el.textContent = sc[sectionId + '_total'] || 0;
+
 }
+
+ 
 
 function updateSummaryPanel(sc) {
+
   const panel = document.getElementById('summaryPanel');
+
   if (!panel) return;
+
   const grand = sc.grand_total || 0;
+
   const pct = Math.round(grand / 90 * 100);
+
   const s1 = sc.s1_total || 0, s2 = sc.s2_total || 0, s3 = sc.s3_total || 0;
+
   panel.innerHTML = `
+
     <div class="summary-item">
+
       <div class="summary-label">รวมทั้งหมด</div>
+
       <div class="summary-value" style="color:var(--text)">${grand}</div>
+
       <div class="summary-max">/ 90 คะแนน · ${pct}%</div>
+
       <div class="summary-bar"><div class="summary-bar-fill" style="width:${pct}%; background:var(--text);"></div></div>
+
     </div>
+
     <div class="summary-item">
+
       <div class="summary-label">ส่วนที่ 1 ชื่อ+บทคัดย่อ</div>
+
       <div class="summary-value" style="color:var(--accent)">${s1}</div>
+
       <div class="summary-max">/ 30 คะแนน · ${Math.round(s1/30*100)}%</div>
+
       <div class="summary-bar"><div class="summary-bar-fill" style="width:${Math.round(s1/30*100)}%; background:var(--accent);"></div></div>
+
     </div>
+
     <div class="summary-item">
+
       <div class="summary-label">ส่วนที่ 2 การนำเสนอ</div>
+
       <div class="summary-value" style="color:var(--accent2)">${s2}</div>
+
       <div class="summary-max">/ 45 คะแนน · ${Math.round(s2/45*100)}%</div>
+
       <div class="summary-bar"><div class="summary-bar-fill" style="width:${Math.round(s2/45*100)}%; background:var(--accent2);"></div></div>
+
     </div>
+
     <div class="summary-item">
+
       <div class="summary-label">ส่วนที่ 3 การถาม-ตอบ</div>
+
       <div class="summary-value" style="color:var(--accent3)">${s3}</div>
+
       <div class="summary-max">/ 15 คะแนน · ${Math.round(s3/15*100)}%</div>
+
       <div class="summary-bar"><div class="summary-bar-fill" style="width:${Math.round(s3/15*100)}%; background:var(--accent3);"></div></div>
+
     </div>
+
   `;
+
   renderStudentList();
+
 }
+
+ 
 
 // ─── SAVE TO SHEET ────────────────────────────────────────────────────
+
 function saveToSheet() {
+
   if (!state.scriptUrl) { alert('กรุณาตั้งค่า Apps Script URL ก่อน'); return; }
+
   if (!state.evaluator || !state.selectedStudent) { alert('กรุณาเลือกผู้ประเมินและนิสิตก่อน'); return; }
+
   
+
   const key = getScoreKey(state.evaluator, state.selectedStudent.id);
+
   const sc = state.scores[key] || {};
+
   const saveBtn = document.getElementById('saveBtn');
+
   const fb = document.getElementById('saveFeedback');
+
   
+
   updateStatus('saving');
+
   saveBtn.disabled = true;
+
   saveBtn.textContent = '⏳ กำลังบันทึก...';
 
+ 
+
   const payload = {
+
     action: 'saveScore',
+
     evaluator: state.evaluator,
+
     studentId: state.selectedStudent.id,
+
     studentName: state.selectedStudent.name,
+
     topic: state.selectedStudent.topic || '',
+
     ...sc
+
   };
+
+ 
 
   // JSONP call
+
   const cbName = 'saveCallback_' + Date.now();
+
   window[cbName] = function(data) {
+
     saveBtn.disabled = false;
+
     saveBtn.textContent = '💾 บันทึกลง Google Sheets';
+
     fb.style.display = 'block';
+
     if (data.success) {
+
       updateStatus('connected');
+
       fb.className = 'save-feedback success';
+
       fb.textContent = '✅ บันทึกสำเร็จ — ' + new Date().toLocaleTimeString('th-TH');
+
     } else {
+
       updateStatus('disconnected');
+
       fb.className = 'save-feedback error';
+
       fb.textContent = '❌ เกิดข้อผิดพลาด: ' + (data.error || 'Unknown');
+
     }
+
     delete window[cbName];
+
     setTimeout(() => { if(fb) fb.style.display = 'none'; }, 4000);
+
   };
+
+ 
 
   const qs = Object.entries(payload).map(([k,v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
+
   const script = document.createElement('script');
+
   script.src = state.scriptUrl + '?' + qs + '&callback=' + cbName;
+
   script.onerror = () => {
+
     saveBtn.disabled = false;
+
     saveBtn.textContent = '💾 บันทึกลง Google Sheets';
+
     fb.style.display = 'block';
+
     fb.className = 'save-feedback error';
+
     fb.textContent = '❌ ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบ URL';
+
     updateStatus('disconnected');
+
     delete window[cbName];
+
   };
+
   document.body.appendChild(script);
+
   setTimeout(() => script.remove(), 8000);
+
 }
+
+ 
 
 // ─── CLEAR FORM ───────────────────────────────────────────────────────
+
 function clearForm() {
+
   if (!confirm('ล้างคะแนนสำหรับนิสิตนี้?')) return;
+
   const key = getScoreKey(state.evaluator, state.selectedStudent.id);
+
   delete state.scores[key];
+
   renderForm();
+
 }
+
+ 
 
 // ─── SUMMARY TAB ─────────────────────────────────────────────────────
+
 function renderSummary() {
+
   const el = document.getElementById('summaryContent');
+
   const hasScores = Object.keys(state.scores).length > 0;
+
   if (!hasScores) {
+
     el.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">ยังไม่มีข้อมูล</div><div class="empty-desc">กรอกคะแนนนิสิตในแท็บ "กรอกคะแนน" ก่อน</div></div>`;
+
     return;
+
   }
+
   let rows = '';
+
   for (const [key, sc] of Object.entries(state.scores)) {
+
     const [ev, sid] = key.split('__');
+
     const st = state.students.find(s => s.id === sid);
+
     const name = st ? st.name : sid;
+
     rows += `<tr>
+
       <td>${ev}</td>
+
       <td>${sid}</td>
+
       <td>${name}</td>
+
       <td style="color:var(--accent); font-family:var(--mono); text-align:center">${sc.s1_total||0}</td>
+
       <td style="color:var(--accent2); font-family:var(--mono); text-align:center">${sc.s2_total||0}</td>
+
       <td style="color:var(--accent3); font-family:var(--mono); text-align:center">${sc.s3_total||0}</td>
+
       <td style="font-family:var(--mono); font-weight:700; text-align:center">${sc.grand_total||0}</td>
+
     </tr>`;
+
   }
+
   el.innerHTML = `
+
     <h2 style="font-size:18px; font-weight:600; margin-bottom:20px;">สรุปคะแนนทั้งหมด</h2>
+
     <div style="overflow-x:auto;">
+
     <table style="width:100%; border-collapse:collapse; font-size:14px;">
+
       <thead>
+
         <tr style="background:var(--surface2); text-align:left;">
+
           <th style="padding:10px 14px; border:1px solid var(--border);">ผู้ประเมิน</th>
+
           <th style="padding:10px 14px; border:1px solid var(--border);">รหัสนิสิต</th>
+
           <th style="padding:10px 14px; border:1px solid var(--border);">ชื่อนิสิต</th>
+
           <th style="padding:10px 14px; border:1px solid var(--border); text-align:center; color:var(--accent)">ส1 /30</th>
+
           <th style="padding:10px 14px; border:1px solid var(--border); text-align:center; color:var(--accent2)">ส2 /45</th>
+
           <th style="padding:10px 14px; border:1px solid var(--border); text-align:center; color:var(--accent3)">ส3 /15</th>
+
           <th style="padding:10px 14px; border:1px solid var(--border); text-align:center;">รวม /90</th>
+
         </tr>
+
       </thead>
+
       <tbody>${rows}</tbody>
+
     </table>
+
     </div>
+
   `;
+
 }
 
+ 
+
 // ─── COPY SCRIPT ──────────────────────────────────────────────────────
+
 function copyScript() {
+
   const code = document.getElementById('scriptCode').innerText.replace('Copy', '').trim();
+
   navigator.clipboard.writeText(code).then(() => {
+
     const btn = document.querySelector('.copy-btn');
+
     btn.textContent = 'Copied!';
+
     setTimeout(() => btn.textContent = 'Copy', 2000);
+
   });
+
 }
+
 </script>
+
 </body>
+
 </html>
