@@ -1,3 +1,6 @@
+Scoring platform · HTML
+
+
 <!DOCTYPE html>
 
 <html lang="th">
@@ -954,6 +957,8 @@
 
     <div class="tab" onclick="switchTab('summary', this)">📊 สรุปคะแนน</div>
 
+    <div class="tab" onclick="switchTab('setup', this)">📋 วิธีตั้งค่า Apps Script</div>
+
   </div>
 
 </div>
@@ -1009,54 +1014,6 @@
     <div class="sidebar-section">
 
       <div class="sidebar-section-title">นิสิต</div>
-
-      <div style="position:relative; margin-bottom:8px;">
-
-        <span style="position:absolute; left:9px; top:50%; transform:translateY(-50%); color:var(--text-dimmer); font-size:13px; pointer-events:none;">🔍</span>
-
-        <input
-
-          id="studentSearch"
-
-          type="text"
-
-          placeholder="ค้นหารหัส / ชื่อนิสิต..."
-
-          oninput="onSearchInput()"
-
-          style="
-
-            width:100%;
-
-            background:var(--surface2);
-
-            border:1px solid var(--border);
-
-            border-radius:7px;
-
-            color:var(--text);
-
-            font-family:var(--sans);
-
-            font-size:13px;
-
-            padding:8px 10px 8px 30px;
-
-            outline:none;
-
-            transition:border-color 0.2s;
-
-          "
-
-          onfocus="this.style.borderColor='var(--accent2)'"
-
-          onblur="this.style.borderColor='var(--border)'"
-
-        />
-
-      </div>
-
-      <div id="searchCount" style="font-size:11px; color:var(--text-dimmer); font-family:var(--mono); padding:0 2px 6px; display:none;"></div>
 
     </div>
 
@@ -1114,6 +1071,314 @@
 
  
 
+<!-- SETUP TAB -->
+
+<div id="setupTab" style="display:none; padding: 28px 32px; overflow-y:auto; height:calc(100vh - 120px);">
+
+  <div class="notice">ℹ️ ระบบนี้ส่งข้อมูลไปยัง Google Sheets ผ่าน Google Apps Script Web App — ต้องตั้งค่าครั้งเดียวเท่านั้น</div>
+
+ 
+
+  <div class="script-panel">
+
+    <h3 style="font-size:15px; font-weight:600; margin-bottom:8px;">ขั้นตอนที่ 1 — เปิด Apps Script</h3>
+
+    <p style="font-size:13px; color:var(--text-dim); line-height:1.6;">เปิดไฟล์ Google Sheets "แบบประเมินการนำเสนอ" → เมนู <strong>Extensions → Apps Script</strong></p>
+
+  </div>
+
+ 
+
+  <div class="script-panel">
+
+    <h3 style="font-size:15px; font-weight:600; margin-bottom:4px;">ขั้นตอนที่ 2 — วาง Code นี้ใน Code.gs</h3>
+
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:0;">ลบ code เดิมออกทั้งหมด แล้ววางอันนี้แทน:</p>
+
+    <pre id="scriptCode"><button class="copy-btn" onclick="copyScript()">Copy</button>
+
+const SPREADSHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId();
+
+const SCORES_SHEET_NAME = "คะแนนรวม";
+
+ 
+
+function doGet(e) {
+
+  return handleRequest(e);
+
+}
+
+function doPost(e) {
+
+  return handleRequest(e);
+
+}
+
+ 
+
+function handleRequest(e) {
+
+  const callback = e.parameter.callback;
+
+  try {
+
+    const action = e.parameter.action || (e.postData ? JSON.parse(e.postData.contents).action : null);
+
+    
+
+    if (action === "saveScore") {
+
+      const data = e.postData ? JSON.parse(e.postData.contents) : e.parameter;
+
+      const result = saveScore(data);
+
+      return output(callback, result);
+
+    }
+
+    if (action === "getScores") {
+
+      const result = getAllScores();
+
+      return output(callback, result);
+
+    }
+
+    if (action === "getStudents") {
+
+      const result = getStudents();
+
+      return output(callback, result);
+
+    }
+
+    return output(callback, {success: false, error: "Unknown action"});
+
+  } catch(err) {
+
+    return output(callback, {success: false, error: err.toString()});
+
+  }
+
+}
+
+ 
+
+function output(callback, data) {
+
+  const json = JSON.stringify(data);
+
+  if (callback) {
+
+    return ContentService.createTextOutput(callback + "(" + json + ")")
+
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+
+  }
+
+  return ContentService.createTextOutput(json)
+
+    .setMimeType(ContentService.MimeType.JSON);
+
+}
+
+ 
+
+function saveScore(data) {
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+  let sheet = ss.getSheetByName(SCORES_SHEET_NAME);
+
+  
+
+  // สร้าง sheet ใหม่ถ้ายังไม่มี
+
+  if (!sheet) {
+
+    sheet = ss.insertSheet(SCORES_SHEET_NAME);
+
+    const headers = [
+
+      "timestamp", "evaluator", "studentId", "studentName", "topic",
+
+      "s1q1", "s1q2", "s1q3", "s1_total",
+
+      "s2q1", "s2q2", "s2q3", "s2q4", "s2q5", "s2_total",
+
+      "s3q1", "s3_total",
+
+      "grand_total"
+
+    ];
+
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+
+    sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold");
+
+  }
+
+  
+
+  // ค้นหาแถวที่มีอาจารย์และนิสิตนี้อยู่แล้ว
+
+  const allData = sheet.getDataRange().getValues();
+
+  let targetRow = -1;
+
+  for (let i = 1; i < allData.length; i++) {
+
+    if (allData[i][1] === data.evaluator && allData[i][2] === data.studentId) {
+
+      targetRow = i + 1;
+
+      break;
+
+    }
+
+  }
+
+  
+
+  const row = [
+
+    new Date().toISOString(),
+
+    data.evaluator,
+
+    data.studentId,
+
+    data.studentName,
+
+    data.topic || "",
+
+    data.s1q1 || 0, data.s1q2 || 0, data.s1q3 || 0, data.s1_total || 0,
+
+    data.s2q1 || 0, data.s2q2 || 0, data.s2q3 || 0, data.s2q4 || 0, data.s2q5 || 0, data.s2_total || 0,
+
+    data.s3q1 || 0, data.s3_total || 0,
+
+    data.grand_total || 0
+
+  ];
+
+  
+
+  if (targetRow > 0) {
+
+    sheet.getRange(targetRow, 1, 1, row.length).setValues([row]);
+
+  } else {
+
+    sheet.appendRow(row);
+
+  }
+
+  
+
+  return {success: true, message: "บันทึกสำเร็จ", row: targetRow > 0 ? targetRow : sheet.getLastRow()};
+
+}
+
+ 
+
+function getAllScores() {
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+  const sheet = ss.getSheetByName(SCORES_SHEET_NAME);
+
+  if (!sheet) return {success: true, scores: []};
+
+  const data = sheet.getDataRange().getValues();
+
+  if (data.length <= 1) return {success: true, scores: []};
+
+  const headers = data[0];
+
+  const scores = data.slice(1).map(row => {
+
+    const obj = {};
+
+    headers.forEach((h, i) => obj[h] = row[i]);
+
+    return obj;
+
+  });
+
+  return {success: true, scores};
+
+}
+
+ 
+
+function getStudents() {
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+  const sheet = ss.getSheetByName("รายชื่อนิสิต");
+
+  if (!sheet) return {success: true, students: []};
+
+  const data = sheet.getDataRange().getValues();
+
+  const students = data.slice(1).filter(r => r[1]).map(r => ({
+
+    order: r[0], id: String(r[1]), name: r[2], topic: r[3], 
+
+    abstract: r[4], date: r[9]
+
+  }));
+
+  return {success: true, students};
+
+}
+
+    </pre>
+
+  </div>
+
+ 
+
+  <div class="script-panel">
+
+    <h3 style="font-size:15px; font-weight:600; margin-bottom:8px;">ขั้นตอนที่ 3 — Deploy เป็น Web App</h3>
+
+    <p style="font-size:13px; color:var(--text-dim); line-height:1.8;">
+
+      1. คลิก <strong>Deploy → New deployment</strong><br>
+
+      2. เลือก Type: <strong>Web app</strong><br>
+
+      3. Execute as: <strong>Me</strong><br>
+
+      4. Who has access: <strong>Anyone</strong> (หรือ "Anyone within [organization]")<br>
+
+      5. คลิก <strong>Deploy</strong> → Copy URL ที่ได้
+
+    </p>
+
+  </div>
+
+ 
+
+  <div class="script-panel">
+
+    <h3 style="font-size:15px; font-weight:600; margin-bottom:8px;">ขั้นตอนที่ 4 — ใส่ URL ในระบบนี้</h3>
+
+    <p style="font-size:13px; color:var(--text-dim); line-height:1.6;">กลับมาที่หน้านี้ → คลิก <strong>⚙ ตั้งค่า</strong> มุมขวาบน → วาง URL ที่ได้จาก Apps Script</p>
+
+    <div style="margin-top:12px;">
+
+      <button class="btn btn-primary" onclick="showSetupModal()">⚙ เปิดหน้าตั้งค่า URL</button>
+
+    </div>
+
+  </div>
+
+</div>
+
  
 
 <!-- SETUP MODAL -->
@@ -1132,7 +1397,7 @@
 
     <div class="hint" style="margin-top:-8px; margin-bottom:16px;">
 
-      ใส่ URL ที่ได้จากการ Deploy Apps Script Web App
+      ดูวิธีสร้าง Web App ได้ที่แท็บ "วิธีตั้งค่า Apps Script"
 
     </div>
 
@@ -1430,6 +1695,8 @@ function switchTab(tab, el) {
 
   document.getElementById('summaryTab').style.display = tab === 'summary' ? 'block' : 'none';
 
+  document.getElementById('setupTab').style.display = tab === 'setup' ? 'block' : 'none';
+
   if (tab === 'summary') renderSummary();
 
 }
@@ -1524,81 +1791,15 @@ window.handleStudents = function(data) {
 
  
 
-// ─── SEARCH ──────────────────────────────────────────────────────────
-
-function onSearchInput() {
-
-  renderStudentList();
-
-}
-
- 
-
-function getSearchQuery() {
-
-  const el = document.getElementById('studentSearch');
-
-  return el ? el.value.trim().toLowerCase() : '';
-
-}
-
- 
-
 // ─── RENDER STUDENT LIST ─────────────────────────────────────────────
 
 function renderStudentList() {
 
   const list = document.getElementById('studentList');
 
-  const query = getSearchQuery();
-
   list.innerHTML = '';
 
- 
-
-  const filtered = state.students.filter(s => {
-
-    if (!query) return true;
-
-    return s.id.toLowerCase().includes(query) || s.name.toLowerCase().includes(query);
-
-  });
-
- 
-
-  // Update search count badge
-
-  const countEl = document.getElementById('searchCount');
-
-  if (countEl) {
-
-    if (query) {
-
-      countEl.style.display = 'block';
-
-      countEl.textContent = `พบ ${filtered.length} / ${state.students.length} คน`;
-
-    } else {
-
-      countEl.style.display = 'none';
-
-    }
-
-  }
-
- 
-
-  if (filtered.length === 0) {
-
-    list.innerHTML = `<div style="padding:16px; text-align:center; color:var(--text-dimmer); font-size:13px;">ไม่พบนิสิตที่ค้นหา</div>`;
-
-    return;
-
-  }
-
- 
-
-  filtered.forEach(s => {
+  state.students.forEach(s => {
 
     const key = getScoreKey(state.evaluator, s.id);
 
@@ -1608,16 +1809,6 @@ function renderStudentList() {
 
     const isActive = state.selectedStudent && state.selectedStudent.id === s.id;
 
- 
-
-    // Highlight matching text
-
-    const nameDisplay = query ? highlightText(s.name, query) : s.name;
-
-    const idDisplay = query ? highlightText(s.id, query) : s.id;
-
- 
-
     const div = document.createElement('div');
 
     div.className = 'student-item' + (isActive ? ' active' : '');
@@ -1626,9 +1817,9 @@ function renderStudentList() {
 
     div.innerHTML = `
 
-      <div class="student-name">${nameDisplay}</div>
+      <div class="student-name">${s.name}</div>
 
-      <div class="student-id">${idDisplay}</div>
+      <div class="student-id">${s.id}</div>
 
       <div class="student-score-badge">
 
@@ -1645,18 +1836,6 @@ function renderStudentList() {
     list.appendChild(div);
 
   });
-
-}
-
- 
-
-function highlightText(text, query) {
-
-  if (!query) return text;
-
-  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-
-  return text.replace(regex, '<mark style="background:rgba(96,165,250,0.3); color:var(--accent2); border-radius:2px; padding:0 1px;">$1</mark>');
 
 }
 
@@ -1804,7 +1983,7 @@ function renderForm() {
 
     document.getElementById('saveFeedback').className = 'save-feedback error';
 
-    document.getElementById('saveFeedback').textContent = '⚠ ยังไม่ได้ตั้งค่า URL → คลิก ⚙ ตั้งค่า มุมขวาบน';
+    document.getElementById('saveFeedback').textContent = '⚠ ยังไม่ได้ตั้งค่า URL → ไปที่ "วิธีตั้งค่า Apps Script"';
 
   }
 
